@@ -1,14 +1,16 @@
 [tool.poetry]
 name = "flaskserver"
 version = "0.1.0"
-description = ""
-authors = ["Tu Nombre <tuemail@dominio.com>"]
+description = "Flask server"
+authors = ["Tu Nombre <tu@email.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.11"
-flask = "^2.2.3"
+flask = "^2.3.3"
 gunicorn = "^20.1.0"
 
-[build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+[tool.poetry.dev-dependencies]
+pytest = "^6.0"
+
+[tool.poetry.packages]
+include = ["flaskserver"]  # Aquí asegúrate de que tu carpeta de código esté incluida

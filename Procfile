@@ -1,2 +1,2 @@
-
-web: bash build.sh
+web: gunicorn app:app
+///web: bash build.sh

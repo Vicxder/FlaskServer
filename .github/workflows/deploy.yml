@@ -1,0 +1,40 @@
+name: Deploy to Render
+
+on:
+  push:
+    branches:
+      - main  # O el nombre de tu rama principal
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out the repository
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.11
+
+    - name: Install Poetry
+      run: |
+        curl -sSL https://install.python-poetry.org | python3 -
+        echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+    - name: Install dependencies
+      run: |
+        poetry install  # Instala las dependencias de Poetry
+        poetry export -f requirements.txt > requirements.txt  # Genera el archivo requirements.txt
+
+    - name: Push requirements.txt to the repo
+      uses: EndBug/add-and-commit@v9
+      with:
+        message: "Update requirements.txt"
+        add: "requirements.txt"
+    
+    - name: Deploy to Render
+      run: |
+        # Aquí puedes agregar tu comando de despliegue en Render o conectar Render a tu repositorio
+        echo "Desplegando en Render..."

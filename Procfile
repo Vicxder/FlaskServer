@@ -1,2 +1,2 @@
 
-web: gunicorn app:app
+web: poetry run gunicorn app:app

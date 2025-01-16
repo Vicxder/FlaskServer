@@ -1,11 +1,12 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS  # Importar Flask-CORS
 
 app = Flask(__name__)
+CORS(app)  # Habilitar CORS para todas las rutas
 
-# Ruta para recibir comandos
 @app.route('/control', methods=['POST'])
 def control():
-    data = request.json  # Recibe el JSON enviado desde el cliente
+    data = request.json  # Recibir datos JSON del frontend
     command = data.get('command')
     if command:
         print(f"Comando recibido: {command}")
@@ -15,4 +16,3 @@ def control():
 
 if __name__ == '__main__':
     app.run(debug=True)
-

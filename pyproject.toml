@@ -2,7 +2,7 @@
 name = "flaskserver"
 version = "0.1.0"
 description = ""
-authors = ["Vicxder <vicxder@gmail.com>"]
+authors = ["Tu Nombre <tuemail@dominio.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.11"

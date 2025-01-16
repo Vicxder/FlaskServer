@@ -1,11 +1,18 @@
-from flask import Flask
+from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
-@app.route('/')
-def home():
-    return 'Hola desde Flask en Render'
+# Ruta para recibir comandos
+@app.route('/control', methods=['POST'])
+def control():
+    data = request.json  # Recibe el JSON enviado desde el cliente
+    command = data.get('command')
+    if command:
+        print(f"Comando recibido: {command}")
+        return jsonify({"status": "success", "command": command}), 200
+    else:
+        return jsonify({"status": "error", "message": "Comando no proporcionado"}), 400
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    app.run(debug=True)
 

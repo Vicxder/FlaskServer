@@ -1,18 +1,27 @@
-from flask import Flask, request, jsonify
-from flask_cors import CORS  # Importar Flask-CORS
+from flask import Flask, request
+from flask_socketio import SocketIO, emit
 
 app = Flask(__name__)
-CORS(app)  # Habilitar CORS para todas las rutas
+socketio = SocketIO(app, cors_allowed_origins="*")  # Habilitar CORS para WebSockets
 
 @app.route('/control', methods=['POST'])
 def control():
-    data = request.json  # Recibir datos JSON del frontend
-    command = data.get('command')
-    if command:
-        print(f"Comando recibido: {command}")
-        return jsonify({"status": "success", "command": command}), 200
-    else:
-        return jsonify({"status": "error", "message": "Comando no proporcionado"}), 400
+    data = request.json
+    command = data.get('command', 'Ninguno')
+    print(f"Comando recibido: {command}")
 
-if __name__ == '__main__':
-    app.run(debug=True)
+    # Emitir el comando a todos los clientes conectados
+    socketio.emit('command', {'command': command})
+    return {'status': 'success', 'command': command}, 200
+
+@socketio.on('connect')
+def handle_connect():
+    print("Cliente conectado")
+    emit('message', {'status': 'Conexión establecida'})
+
+@socketio.on('disconnect')
+def handle_disconnect():
+    print("Cliente desconectado")
+
+if __name__ == "__main__":
+    socketio.run(app, debug=True)

@@ -1,38 +1,29 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from flask_socketio import SocketIO, emit
+import paho.mqtt.publish as publish
 
 app = Flask(__name__)
-CORS(app)  # Habilitar CORS para todas las rutas
+CORS(app)  # Habilitar CORS
 
-# Inicializar SocketIO
-socketio = SocketIO(app, cors_allowed_origins="*")
-
-@app.route("/control", methods=["POST", "OPTIONS"])
+# Ruta para recibir comandos y enviarlos vía MQTT
+@app.route("/control", methods=["POST"])
 def control():
-    if request.method == "POST":
-        data = request.json
-        command = data.get("command", "")
-        print(f"Comando recibido vía HTTP: {command}")
-        # Emitir el comando a través de SocketIO a los clientes conectados
-        socketio.emit("command", {"command": command})
-        return jsonify({"message": "Comando recibido", "command": command})
-    return "OK", 200
+    data = request.json
+    command = data.get("command", "")
+    if command:
+        try:
+            # Publicar el comando en el tema MQTT
+            publish.single("auto_rc/control", command, hostname="broker.emqx.io")
+            print(f"Comando enviado vía MQTT: {command}")
+            return jsonify({"message": "Comando enviado vía MQTT", "command": command})
+        except Exception as e:
+            print(f"Error al publicar en MQTT: {e}")
+            return jsonify({"message": "Error enviando comando", "error": str(e)}), 500
+    return jsonify({"message": "No se recibió ningún comando"}), 400
 
 @app.route("/")
 def home():
-    return "Servidor Flask-SocketIO Activo"
-
-# Evento de conexión de SocketIO
-@socketio.on('connect')
-def handle_connect():
-    print("Cliente conectado vía SocketIO")
-    emit("message", {"info": "Conexión establecida"})
-
-# Evento de desconexión de SocketIO
-@socketio.on('disconnect')
-def handle_disconnect():
-    print("Cliente desconectado")
+    return "Servidor Flask con MQTT Activo"
 
 if __name__ == "__main__":
-    socketio.run(app, debug=True)
+    app.run(debug=True)

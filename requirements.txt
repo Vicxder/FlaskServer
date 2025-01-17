@@ -7,3 +7,4 @@ flask-socketio
 eventlet
 websocket-client
 python-socketio
+paho-mqtt==1.6.1

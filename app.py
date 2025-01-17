@@ -1,29 +1,31 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import paho.mqtt.publish as publish
 
 app = Flask(__name__)
-CORS(app)  # Habilitar CORS
+CORS(app)
 
-# Ruta para recibir comandos y enviarlos vía MQTT
+# Cola de comandos para los clientes
+commands = []
+
 @app.route("/control", methods=["POST"])
 def control():
     data = request.json
     command = data.get("command", "")
     if command:
-        try:
-            # Publicar el comando en el tema MQTT
-            publish.single("auto_rc/control", command, hostname="broker.emqx.io")
-            print(f"Comando enviado vía MQTT: {command}")
-            return jsonify({"message": "Comando enviado vía MQTT", "command": command})
-        except Exception as e:
-            print(f"Error al publicar en MQTT: {e}")
-            return jsonify({"message": "Error enviando comando", "error": str(e)}), 500
-    return jsonify({"message": "No se recibió ningún comando"}), 400
+        commands.append(command)  # Agregar el comando a la cola
+        print(f"Comando recibido: {command}")
+    return jsonify({"message": "Comando recibido"})
+
+@app.route("/get_command", methods=["GET"])
+def get_command():
+    if commands:
+        command = commands.pop(0)  # Obtener el primer comando en la cola
+        return jsonify({"command": command})
+    return jsonify({"command": None})
 
 @app.route("/")
 def home():
-    return "Servidor Flask con MQTT Activo"
+    return "Servidor Flask Activo"
 
 if __name__ == "__main__":
     app.run(debug=True)

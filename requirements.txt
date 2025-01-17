@@ -5,3 +5,4 @@ Werkzeug==2.2.3
 flask-cors
 flask-socketio
 eventlet
+websocket-client
